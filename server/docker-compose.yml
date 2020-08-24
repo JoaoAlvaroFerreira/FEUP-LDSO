@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  server:
+    restart: always
+    container_name: server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./src:/server/src
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      HOST: 0.0.0.0
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+    command: npm run migrate:reset && npm run dev
+
+  postgres:
+    restart: always
+    image: postgres:11.5
+    environment:
+      POSTGRES_USER: ktg
+      POSTGRES_PASSWORD: ktg
+      POSTGRES_DB: ktg_dev
+
+  redis:
+    image: redis:5.0.6

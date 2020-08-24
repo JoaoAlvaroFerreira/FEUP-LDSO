@@ -1,0 +1,61 @@
+{
+  "name": "ktg_server",
+  "version": "1.0.0",
+  "description": "Know the Game API",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon --exec babel-node src/index.js",
+    "start": "npx sequelize-cli db:migrate && babel-node src/index.js",
+    "format": "eslint --fix \"**/*.js\" && prettier --write \"src/**/*.js\"",
+    "lint": "eslint \"**/*.js\"",
+    "migrate:reset": "npx sequelize-cli db:migrate:undo:all && npx sequelize-cli db:migrate",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
+    "pretest": "cross-env NODE_ENV=test npm run migrate:reset",
+    "mutation-test": "npx stryker run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sentry/node": "^5.9.0",
+    "babel-core": "^6.26.3",
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "connect-redis": "^4.0.3",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "helmet": "^3.21.2",
+    "pg": "^7.14.0",
+    "redis": "^2.8.0",
+    "sequelize": "^5.21.2",
+    "sequelize-cli": "^5.5.1",
+    "swagger-ui-express": "^4.1.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.7.0",
+    "@babel/core": "^7.7.2",
+    "@babel/node": "^7.7.0",
+    "@babel/plugin-transform-runtime": "^7.6.2",
+    "@babel/preset-env": "^7.7.1",
+    "@babel/runtime": "^7.7.2",
+    "@stryker-mutator/core": "^2.4.0",
+    "@stryker-mutator/jest-runner": "^2.4.0",
+    "babel-eslint": "^10.0.3",
+    "cross-env": "^6.0.3",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.7.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "jest": "^24.9.0",
+    "morgan": "^1.9.1",
+    "nodemon": "^1.19.4",
+    "prettier": "^1.19.1",
+    "supertest": "^4.0.2",
+    "uuid": "^3.3.3",
+    "yamljs": "^0.3.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": true
+  }
+}

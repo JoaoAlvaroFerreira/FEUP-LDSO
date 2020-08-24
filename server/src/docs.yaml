@@ -1,0 +1,895 @@
+openapi: 3.0.1
+
+info:
+  title: Know the Game API
+  description: >
+    This is the Know the Game API documentation.
+  basePath: /api/
+  version: 1.0.0
+
+servers:
+  - url: http://104.248.19.12/api/v1/
+    description: Production server
+  - url: http://104.248.19.12:5050/api/v1/
+    description: Staging server
+
+tags:
+  - name: auth
+    description: User authentication
+  - name: users
+    description: Operations about users
+  - name: bets
+    description: Operations about bets
+  - name: leagues
+    description: Operations about leagues
+  - name: games
+    description: Operations about games
+  - name: sports
+    description: Operations about sports
+
+paths:
+  /auth/signup:
+    post:
+      summary: Registers user in the server
+      description: >
+        Native signup endpoint. Also logs the user in on success.
+      requestBody:
+        description: User object to be created
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewUser"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - auth
+  /auth/login:
+    post:
+      summary: Logs user into the server
+      description: >
+        Native login endpoint. Logs the user in on success.
+      requestBody:
+        description: User credentials
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/UserCredentials"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        401:
+          $ref: "#/components/responses/Unauthorized"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - auth
+  /auth/logout:
+    get:
+      summary: Logs user out of the server
+      description: >
+        Logout endpoint. Destroys the session cookie.
+      responses:
+        200:
+          description: OK
+        401:
+          $ref: "#/components/responses/Unauthorized"
+      tags:
+        - auth
+
+  /v1/users:
+    get:
+      summary: Returns all users
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Users"
+      tags:
+        - users
+  /v1/users/loggedIn:
+    get:
+      summary: Returns logged in user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+      tags:
+        - users
+  /v1/users/{id}:
+    get:
+      summary: Returns a user by ID
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - users
+    put:
+      summary: Modifies a user by ID
+      requestBody:
+        description: User object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewUser"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - users
+    delete:
+      summary: Deletes a user by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - users
+  /v1/users/{id}/otherUsers:
+    get:
+      summary: Returns all the users except the given user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtherUser"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - users
+  /v1/users/{id}/addFriend:
+    post:
+      summary: Add a new friend to the given user
+      requestBody:
+        description: User object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewFriend"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtherUser"
+      tags:
+        - users
+  /v1/users/{id}/friends:
+    get:
+      summary: Returns all the user's friends
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtherUser"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - users
+
+  /v1/bets:
+    get:
+      summary: Returns all bets
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bets"
+      tags:
+        - bets
+    post:
+      summary: Create a new bet
+      requestBody:
+        description: Bet object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewBet"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bet"
+      tags:
+        - bets
+  /v1/bets/{id}:
+    get:
+      summary: Returns a user by ID
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bet"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - bets
+    put:
+      summary: Modifies a bet by ID
+      requestBody:
+        description: Bet object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewBet"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Bet"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - bets
+    delete:
+      summary: Deletes a bet by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - bets
+
+  /v1/leagues:
+    get:
+      summary: Returns all leagues
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leagues"
+      tags:
+        - leagues
+    post:
+      summary: Create a new league
+      requestBody:
+        description: League object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewLeague"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+      tags:
+        - leagues
+  /v1/leagues/{id}:
+    get:
+      summary: Returns a league by ID
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leagues"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - leagues
+    put:
+      summary: Modifies a league by ID
+      requestBody:
+        description: League object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewLeague"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/League"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - leagues
+    delete:
+      summary: Deletes a league by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - leagues
+  /v1/leagues/{id}/users:
+    get:
+      summary: Returns all users in a a league by ID
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Users"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - leagues
+
+  /v1/invites:
+    get:
+      summary: Returns all invites
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+      tags:
+        - invites
+    post:
+      summary: Create a new invite
+      requestBody:
+        description: Invite object
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NewInvite"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+      tags:
+        - invites
+  /v1/invites/invitesReceived/{id}:
+    get:
+      summary: Returns received invites by a given user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - invites
+  /v1/invites/invitesSent/{id}:
+    get:
+      summary: Returns sent invites by a given user
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - invites
+  /v1/invites/{inviteid}/acceptDeny/:
+    post:
+      summary: Accept or deny a received invite by the given user
+      requestBody:
+        description: Acceptance
+        required: true
+        content:
+          "application/json":
+            schema:
+              type: object
+              properties:
+                UserId: 
+                  type: string
+                  example: fafbf797-80bb-467c-abb6-a6f3ca8afc96
+                  description: Id of the user that received the invite 
+                acceptance:
+                  type: boolean
+                  example: true
+                  description: If accepts the invite or not.
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Invite"
+      tags:
+        - invites
+
+  /v1/games:
+    get:
+      summary: Returns all games
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Game"
+      tags:
+        - games
+  /v1/games/{id}:
+    get:
+      summary: Returns a game by ID
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Game"
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - games
+    
+  /v1/sports/nba/games/:
+    get:
+      summary: Returns all upcoming games 
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Games"
+      tags:
+        - sports
+  /v1/sports/nba/games/{date}:
+    get:
+      summary: Returns all games scheduled for a given date 
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Games"
+      tags:
+        - sports
+  
+  /v1/sports/nba/currentSeason:
+    get:
+      summary: Returns the name of the current season
+      responses:
+        200:
+          description: OK
+      tags:
+        - sports
+  /v1/sports/nba/weekSchedule:
+    get:
+      summary: Returns all games scheduled for the current week
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Games"
+      tags:
+        - sports
+
+  /v1/sports/nba/stadiums:
+    get:
+      summary: Returns all stadiums
+      tags:
+        - sports
+      responses:
+        200:
+          description: OK
+      
+  /v1/sports/nba/stadiums/{id}:
+    get:
+      summary: Returns a stadium by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - sports
+
+  /v1/sports/nba/teams:
+    get:
+      summary: Returns all teams
+      responses:
+        200:
+          description: OK
+      tags:
+        - sports
+  /v1/sports/nba/teams/{id}:
+    get:
+      summary: Returns a team by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - sports
+  /v1/sports/nba/teams/{id}/players:
+    get:
+      summary: Returns all players in a team by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - sports
+
+  /v1/sports/nba/players:
+    get:
+      summary: Returns all players
+      responses:
+        200:
+          description: OK
+      tags:
+        - sports
+  /v1/sports/nba/players/{id}:
+    get:
+      summary: Returns a player by ID
+      responses:
+        200:
+          description: OK
+        404:
+          $ref: "#/components/responses/NotFound"
+      tags:
+        - sports
+  
+  /v1/sports/nba/addGame:
+    post:
+      summary: Add a game to a league
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              properties:
+                UserId: 
+                  type: integer
+                GameId:
+                  type: integer
+                LeagueId:
+                  type: integer
+      responses:
+        200:
+          description: OK
+      tags:
+        - sports
+        
+components:
+  schemas:
+    UserCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+          example: johndoe@example.com
+          description: The user email.
+        password:
+          type: string
+          example: password
+          description: The user password.
+
+    UserCredentials2:
+      type: object
+      properties:
+        email:
+          type: string
+          example: peter@example.com
+          description: The user email.
+        password:
+          type: string
+          example: password
+          description: The user password.
+
+    NewUser:
+      type: object
+      allOf: 
+        - $ref: '#/components/schemas/UserCredentials'
+      properties:
+        name:
+          type: string
+          example: John Doe
+          description: The user display name.
+        username:
+          type: string
+          example: johndoe
+          description: The user username.
+        photoUrl: 
+          type: url
+          example: "https:\/\/s3-us-west-2.amazonaws.com\/static.fantasydata.com\/headshots\/nba\/low-res\/20000439.png"
+          description: The user picture.
+
+    NewUser2:
+      type: object
+      allOf: 
+        - $ref: '#/components/schemas/UserCredentials2'
+      properties:
+        name:
+          type: string
+          example: Peter
+          description: The user display name.
+        username:
+          type: string
+          example: peter
+          description: The user username.
+        photoUrl: 
+          type: url
+          example: "https:\/\/s3-us-west-2.amazonaws.com\/static.fantasydata.com\/headshots\/nba\/low-res\/20000439.png"
+          description: The user picture.
+
+    User:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewUser'
+      properties:
+        id:
+          type: string
+          example: "fafbf797-80bb-467c-abb6-a6f3ca8afc96"
+          description: The user ID.
+        Bets:
+          type: array
+          example: []
+          example: The user's bets.
+
+    OtherUser:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewUser2'
+      properties:
+        id:
+          type: string
+          example: "bcfbf627-80bb-467c-abb6-a6f3ca9ccf54"
+          description: The user ID.
+        Bets:
+          type: array
+          example: []
+          example: The user's bets.
+
+    NewFriend: 
+      type: object
+      properties:
+        friendId:
+          type: string
+          example: "bcfbf627-80bb-467c-abb6-a6f3ca9ccf54"
+          description: The friend ID.
+
+    NewBet:
+      type: object
+      properties:
+        homeTeamScore:
+            type: integer
+            example: 1
+            description: The home team's score.
+        awayTeamScore:
+          type: integer
+          example: 1
+          description: The away team's score.
+        UserId:
+          type: string
+          example: "fafbf797-80bb-467c-abb6-a6f3ca8afc96"
+          description: The user ID of user who made this bet.
+        LeagueId:
+          type: integer
+          example: 2
+          description: The league ID the bet belongs to.
+        GameId:
+          type: integer
+          example: 5541
+          description: The ID of the game this bet is referencing.
+
+    Bet:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewBet'
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: The bet ID.  
+        points:
+          type: integer
+          example: 0
+          description: The points earned.
+
+    NewLeague:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Example League
+          description: The league name.
+        competition:
+          type: string
+          example: NBA
+          description: The league competition.
+        CreatorId:
+          type: string
+          example: "fafbf797-80bb-467c-abb6-a6f3ca8afc96"
+          description: The user ID of user who created this league.
+
+    League:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewLeague'
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: The league ID.
+
+    NewInvite:
+      type: object
+      properties:
+        LeagueId:
+          type: integer
+          example: 1
+          description: The league id.
+        InviteReceivedId:
+          type: string
+          example: "d3d96722-84c0-4529-ab8e-6c785f6227c9"
+          description: The user ID that the logged in user wants to invite.
+        InviteSentId:
+          type: string
+          example: "fafbf797-80bb-467c-abb6-a6f3ca8afc96"
+          description: The user ID that is sending the invite.
+
+    Invite:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewInvite'
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: The invite ID.
+    
+    NewGame:
+      type: object
+      properties:
+        GameID:
+          type: integer
+          example: 1
+          description: The game's ID (on SportsData).
+        Season: 
+          type: integer
+          example: 2020
+          description: The season the game belongs to.
+        Status:
+          type: string
+          example: "Scheduled"
+          description: The game status.
+        DateTime: 
+          type: string
+          example: "2019-10-22T00:00:00"
+          description: The date the game happens.
+        AwayTeam: 
+          type: string
+          example: "NO"
+          description: The game's away team.
+        HomeTeam: 
+          type: string
+          example: "TOR"
+          description: The game's home team.
+        AwayTeamID: 
+          type: integer
+          example: 23
+          description: The game's away team's ID.
+        HomeTeamID: 
+          type: integer
+          example: 10
+          description: The game's home team's ID.
+        StadiumID: 
+          type: integer
+          example: 10
+          description: The game's stadium's ID.
+        AwayTeamScore: 
+          type: integer
+          example: 123
+          description: The game's away team's score.
+        HomeTeamScore: 
+          type: integer
+          example: 131
+          description: The game's home team's score.
+        IsClosed: 
+          type: boolean
+          example: true
+          description: Indicates whether or not the game is finished.
+        GameEndDateTime:
+          type: string
+          example: "2019-10-22T22:59:08"
+          description: The game's end time.
+
+    Game:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/NewGame'
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: The game ID.
+
+    Users:
+      type: array
+      items:
+        $ref: "#/components/schemas/User"
+
+    Bets:
+      type: array
+      items:
+        $ref: "#/components/schemas/Bet"
+
+    Leagues:
+      type: array
+      items:
+        $ref: "#/components/schemas/League"
+
+    Games:
+      type: array
+      items:
+        $ref: "#/components/schemas/Game"
+
+  responses:
+    NotFound:
+      description: The specified resource was not found
+
+    Unauthorized:
+      description: Unauthorized

@@ -1,0 +1,142 @@
+include:
+  template: Dependency-Scanning.gitlab-ci.yml
+
+stages:
+  - lint
+  - test
+  - build
+  - release
+  - deploy
+
+lint client:
+  stage: lint
+  image: cirrusci/flutter:stable
+  script:
+    - cd client
+    - flutter analyze
+    - cd ..
+  rules:
+    - changes:
+        - client/**/*
+
+lint server:
+  image: node:12
+  stage: lint
+  cache:
+    paths:
+      - server/node_modules/
+  script:
+    - cd server
+    - npm ci
+    - npm run lint
+    - cd ..
+  rules:
+    - changes:
+        - server/**/*
+
+test client:
+  stage: test
+  image: cirrusci/flutter:stable
+  script:
+    - cd client
+    - flutter test --coverage
+    - lcov --list coverage/lcov.info
+    - genhtml coverage/lcov.info --output=coverage
+    - cd ..
+  rules:
+    - changes:
+      - client/**/*
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - if: '$CI_COMMIT_REF_NAME == "develop"'
+      when: always
+  artifacts:
+    paths:
+      - client/coverage/
+          
+test server:
+  image: node:12
+  stage: test
+  services:
+    - postgres:11.5
+    - redis:5.0.6
+  variables:
+    POSTGRES_DB: "ktg_test"
+    POSTGRES_USER: "ktg"
+    POSTGRES_PASSWORD: "ktg"
+    POSTGRES_HOST: "postgres"
+    REDIS_HOST: "redis"
+  cache:
+    paths:
+      - server/node_modules/
+  script:
+    - cd server
+    - npm ci
+    - npm test
+    - cd ..
+  rules:
+    - changes:
+        - server/**/*
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - if: '$CI_COMMIT_REF_NAME == "develop"'
+      when: always
+
+build apk:
+  stage: build
+  image: cirrusci/flutter:stable
+  script:
+    - cd client
+    - flutter build apk --target-platform android-arm,android-arm64 --split-per-abi
+    - cd ..
+  artifacts:
+    paths:
+      - client/build/app/outputs/apk
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+    - if: '$CI_COMMIT_REF_NAME == "develop"'
+      when: always
+  
+release staging:
+    stage: release
+    script: 
+     - ./staging_release.sh
+    rules:
+    - if: '$CI_COMMIT_REF_NAME == "develop"'
+      when: always
+
+release production:
+    stage: release
+    script: 
+     - ./production_release.sh
+    rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always
+
+.before_deploy: &before_deploy
+- 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+- eval $(ssh-agent -s)
+- echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+- mkdir -p ~/.ssh
+- chmod 700 ~/.ssh
+- echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+- chmod 644 ~/.ssh/known_hosts
+
+deploy staging:
+  stage: deploy
+  script:
+    - *before_deploy
+    - ssh $SSH_REMOTE_ADDRESS "~/deploy.sh"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "develop"'
+      when: always
+
+deploy production:
+  stage: deploy
+  script:
+    - *before_deploy
+    - ssh $SSH_REMOTE_ADDRESS "~/deploy.sh production"
+  rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+      when: always

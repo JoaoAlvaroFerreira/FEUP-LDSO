@@ -1,0 +1,24 @@
+# Note: It requires docker-compose 1.13.0
+#
+# Usage: docker-compose up -d
+version: "2.2"
+
+services:
+
+  # Docker-Android for Android application testing
+  nexus_7.1.1:
+    image: budtmo/docker-android-x86-7.1.1
+    privileged: true
+    # Increase scale number if needed
+    scale: 1
+    ports:
+      - 6080
+    # Change path of apk that you want to test. I use sample_apk that I provide in folder "example"
+    volumes:
+      - $PWD/build/app/outputs/apk:/root/tmp/sample_apk
+      - ./video-nexus_7.1.1:/tmp/video
+    environment:
+      - DEVICE=Nexus 5
+      - CONNECT_TO_GRID=true
+      - APPIUM=true
+      - AUTO_RECORD=true
